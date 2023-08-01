@@ -3,26 +3,19 @@ const { getAllCountries, getCountryByName, getCountryById, saveDataApiIntoDb, ge
 const getCountryHandler = async (req, res) => {
     try {
         const { name } = req.query;
-       if (name) {
-        try {
+
+        if(saveDataApiIntoDb.length === 0) {
+            await getApiData();
+            await saveDataApiIntoDb();
+        }
+        if (name) { 
             const countryByName = await getCountryByName(name);
-            res.writeHead(200, { 'Content-Type': 'application/json' });
-            res.end(JSON.stringify(countryByName));
+            return res.status(200).json(countryByName);
             
-            } catch (error) {
-               return res.status(400).json({ error: 'Country not found' });  
-            }                   
-       }
-       if(saveDataApiIntoDb.length === 0) {
-          await getApiData();
-          await saveDataApiIntoDb();
-          const response = await getAllCountries();
-          res.writeHead(200, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify(response));
-       }
-       else {
-        return res.status(400).json({ error: 'Data alredy charge into DataBase' });
-    }
+        }
+        const response = await getAllCountries();
+        return res.status(200).json(response);  
+    
      } catch (error) {
         res.status(400).json({error: error.message})
     }
